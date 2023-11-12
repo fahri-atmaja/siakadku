@@ -20,7 +20,7 @@ $mail->SMTPDebug = 2;
 $mail->Port = 26;
 $mail->SMTPAuth = true;
 $mail->Username = "tagihan@undaris.ac.id"; //user email
-$mail->Password = "und4r15!$"; //password email
+$mail->Password = ""; //password email
 $mail->SetFrom("tagihan@undaris.ac.id","Tagihan Undaris"); //set email pengirim
 $mail->Subject = "Pemberitahuan Tagihan Mahasiswa Undaris"; //subyek email
 $mail->AddAddress("$email","Mahasiswa UNDARIS Ungaran"); //tujuan email
