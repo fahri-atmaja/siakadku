@@ -95,7 +95,7 @@ function kirim_email($email, $code){
         $mail->Port = 26;   
         $mail->SMTPAuth = true;
         $mail->Username = "siakad@undaris.ac.id"; //user email
-        $mail->Password = "und4r15!$"; //password email
+        $mail->Password = ""; //password email
         $mail->SetFrom("siakad@undaris.ac.id","SIAKAD Undaris"); //set email pengirim
         $mail->Subject = "Verifikasi Email"; //subyek email
         $mail->AddAddress($email,"Mahasiswa UNDARIS Ungaran");
