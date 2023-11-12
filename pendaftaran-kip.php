@@ -2,7 +2,7 @@
 // include("config/main.php");
 // include("config/routing.php");
 
-$koneksi        = mysqli_connect('localhost','smilefoo_siakad','Sina_atmaja666','smilefoo_wp');
+$koneksi        = mysqli_connect('localhost','smilefoo_siakad','','smilefoo_wp');
 $nik            = $_POST['nik'];
 $nisn           = $_POST['nisn'];
 $nama           = $_POST['nama'];
