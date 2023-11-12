@@ -1,0 +1,168 @@
+<?php
+    $sql    ="SELECT * FROM student_mahasiswa WHERE nim='$_username'";
+    $x      =mysqli_query($koneksi, $sql);
+    $view   =mysqli_fetch_array($x);
+    $angkatan = $view['angkatan_id'];
+    $konsentrasi= $view['konsentrasi_id'];
+    $status = $view['status_angsur'];
+    $sql1   = "SELECT keuangan_biaya_kuliah.*, keuangan_jenis_bayar.keterangan FROM keuangan_biaya_kuliah 
+                LEFT JOIN keuangan_jenis_bayar ON keuangan_biaya_kuliah.jenis_bayar_id=keuangan_jenis_bayar.jenis_bayar_id
+                WHERE konsentrasi_id='$konsentrasi' AND angkatan_id='$angkatan'";
+    // $sql1   = "SELECT kbk.*, kjb.keterangan FROM keuangan_biaya_kuliah as kbk, keuangan_jenis_bayar as kjb
+    //           LEFT JOIN kjb ON kbk.jenis_bayar_id=kjb.jenis_bayar_id
+    //           WHERE kbk.konsentrasi_id='$konsentrasi' AND kbk.angkatan_id='$angkatan'";
+	$query1 = mysqli_query($koneksi, $sql1);
+?>
+<h1>
+<a href="<?= $_url ?>" class="nav-button transform"><span></span></a>
+TAGIHAN-MU
+</h1>
+<div class="container"> 
+<div class="table-responsive">
+            <table id="dtHorizontalExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+	<thead>
+		<tr>
+			<th>No</th>
+			<th>Jenis Bayar</th>
+			<th>Semester</th>
+			<th>Nominal Biaya</th>
+			<th>Jatuh Tempo</th>
+			<th>Aksi</th>
+		</tr>
+	</thead>
+	<tbody>
+
+	<?php
+		$no=1;
+		if (mysqli_num_rows($query1) > 0):
+			while($field1 = mysqli_fetch_array($query1)):
+	?>
+		<tr>
+			<td><?= $no++ ?></td>
+			<td><?= $field1['keterangan']; ?></td>
+			<td></td>
+			<td><?= $field1['jumlah']; ?></td>
+			<td></td>
+			<td>
+				<div class="inline-block">
+				    <button class="button dropdown-toggle">Aksi</button>
+				    <ul class="list-group" data-role="dropdown">
+						<li class="list-group-item"><a href="<?= $_url ?>transaksi/proses/<?= $field1['id_tagihan'] ?>"> Proses</a></li>
+						<!--<li><a href="<?= $_url ?>jadwal/edit/<?= $field1['jadwal_id'] ?>/<?= urlencode($field1['nama_makul']) ?>"><span class="mif-pencil"></span> Edit</a></li>-->
+						<!--<li><a href="<?= $_url ?>dosen/list_absensi/<?= $field1['jadwal_id'] ?>/<?= urlencode($field1['nama_makul']) ?>"><span class="mif-pencil"></span> List Absen</a></li>-->
+					
+				    </ul>
+				</div>
+			</td>
+		</tr>
+	<?php
+			endwhile;
+		else:
+	?>
+		<tr>
+			<td colspan="4">
+			Data tidak ditemukan
+			</td>
+		</tr>
+	<?php
+		endif;
+	?>
+		
+	</tbody>
+</table>
+    </div>
+</div>
+
+<!-- PROSES TAGIHAN -->
+
+<?php
+
+    $proses = mysqli_query($koneksi,"SELECT proses_transaksi.brivaNo, proses_transaksi.custCode, proses_transaksi.status_bayar, tagihan_mahasiswa.* FROM proses_transaksi
+                                        LEFT JOIN tagihan_mahasiswa ON tagihan_mahasiswa.id_tagihan=proses_transaksi.id_tagihan
+                                        WHERE nim='$_username' ORDER BY id_tagihan ASC");
+
+?>
+
+
+<h1>Proses Tagihan</h1>
+<div class="container"> 
+<div class="table-responsive">
+            <table id="dtHorizontalExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+	<thead>
+		<tr>
+			<th>No</th>
+			<th>Nomor Virtual Account BRI</th>
+			<th>Jenis Bayar</th>
+			<th>Jumlah Bayar</th>
+			<th>Jatuh Tempo</th>
+			<th>Status</th>
+			<th>Aksi</th>
+		</tr>
+	</thead>
+	<tbody>
+
+	<?php
+		$no=1;
+		if (mysqli_num_rows($proses) > 0):
+			while($field = mysqli_fetch_array($proses)):
+	?>
+		<tr>
+			<td><?= $no++ ?></td>
+			<td><?= $field['brivaNo']; ?><?= $field['custCode']; ?></td>
+			<td>
+			    <?php
+			    $jenis_bayar = $field['jenis_bayar'];
+			    $select=mysqli_query($koneksi,"SELECT * FROM kode_tagihan WHERE kode_bayar='$jenis_bayar'");
+			    $view = mysqli_fetch_array($select);
+			    echo $view['keterangan'].' Semester '. $field['semester']; 
+			    ?>
+			
+			</td>
+			<td><?= rupiah($field['jumlah']); ?></td>
+			<td><?= tgl_indo($field['batas_bayar']) ?></td>
+			<td>
+			<?php 
+		    if ($field['status_bayar']=='n'){
+			    echo "<i>BELUM TERBAYAR</i>";
+			}else{
+			    echo "<b>LUNAS</b>";
+			}
+			?>
+			</td>
+			<td>
+				<div class="inline-block">
+				    <?php
+				        if($field['status_bayar']=='n'):
+				        ?>
+				    <button class="button mini-button dropdown-toggle">Aksi</button>
+				    <ul class="split-content d-menu" data-role="dropdown">
+						<li><a href="<?= $_url ?>transaksi/refresh/<?= urlencode($field['custCode']) ?>"><span class="mif-near-me"></span>Refresh</a></li>
+						<li><a href="<?= $_url ?>transaksi/invoice/<?= urlencode($field['custCode']) ?>"><span class="mif-near-me"></span>Invoice</a></li>
+						<?php
+						else:
+						?>
+						Transaksi Berhasil!!
+						<?php
+						endif;
+						?>
+				    </ul>
+				</div>
+			</td>
+		</tr>
+	<?php
+			endwhile;
+		else:
+	?>
+		<tr>
+			<td colspan="4">
+			Data tidak ditemukan
+			</td>
+		</tr>
+	<?php
+		endif;
+	?>
+		
+	</tbody>
+</table>
+    </div>
+</div>
